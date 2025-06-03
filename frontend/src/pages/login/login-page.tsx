@@ -22,7 +22,6 @@ export default function Login() {
       });
       console.log(response);
       if (response.ok) {
-        alert('Login successful!');
         navigate('/');
       } else {
         alert('Login failed. Please check your credentials.');
@@ -47,9 +46,10 @@ export default function Login() {
       });
       console.log(response);
       if (response.ok) {
-        alert('Signup successful! ' + response);
+        alert('Signup successful! ');
+        setSignup(false); // Switch to login mode after successful signup
       } else {
-        alert('Signup failed. Please check your credentials.');
+        alert('Signup failed. Email already exists or invalid data.');
       }
     }
     catch (error) {

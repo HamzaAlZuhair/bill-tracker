@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.TOKEN_KEY as string, {
-    expiresIn: '1h',
+    expiresIn: '5h',
   });
 }
 
@@ -88,7 +88,7 @@ const verifyUser = (req: any, res: any) => {
 }
 
 const logoutUser = (req: any, res: any) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'none', secure: false });
+  res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: false });
   res.status(200).send({ message: "Logged out successfully" });
 }
 export { registerUser, loginUser, verifyUser, logoutUser };

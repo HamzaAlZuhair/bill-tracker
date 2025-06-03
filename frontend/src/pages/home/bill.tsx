@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useBills } from "../../context/bills-context";
 
-export default function Task({
+export default function Bill({
   id,
   name,
   amount,
@@ -22,6 +22,7 @@ export default function Task({
   const [editAmount, setEditAmount] = useState(amount);
   const [editDueDate, setEditDueDate] = useState(dueDate);
   const [editStatus, setEditStatus] = useState(status);
+  const [editIssueDate, setEditIssueDate] = useState(issueDate);
   const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
@@ -36,7 +37,7 @@ export default function Task({
             bill_name: editName,
             bill_amount: editAmount,
             bill_due_date: editDueDate,
-            bill_issue_date: issueDate,
+            bill_issue_date: editIssueDate,
             bill_status: editStatus,
           }),
         }
@@ -106,14 +107,14 @@ export default function Task({
   }
 
   return (
-    <div className="flex flex-row items-center justify-between bg-gray-200 p-2 rounded-xl m-2 w-[95%] shadow-sm">
+    <div className={`flex flex-col md:flex-row items-center justify-between ${status === 'unpaid' && dueDate < new Date().toISOString() ? 'bg-red-100' : 'bg-gray-200'} p-2 rounded-xl m-2 w-[95%] shadow-sm`}>
       {deleting && <ConfirmDelete setDeleting={setDeleting} handleDelete={handleDelete} />}
       {!isEditing ? (
         <>
           <div className="flex flex-col">
             <div className={`flex flex-row m-2 ${status ==='paid' ? 'bg-green-300/50' : 'bg-red-300/50'} py-2 px-3 rounded-full w-fit items-center`}>
               <div className={`rounded-full w-2 h-2 ${status ==='paid' ? 'bg-green-500' : 'bg-red-500'} mr-2`}></div>
-              <span className="text-sm">{status}</span>
+              <span className="text-sm">{(status === 'unpaid' && dueDate < new Date().toISOString()) ? 'Overdue' : status}</span>
             </div>
             <div>
               <p className="m-2 text-xl">{name}</p>
@@ -121,7 +122,7 @@ export default function Task({
             <div className="flex flex-row items-center justify-evenly w-full">
             <p className="m-2">Amount: <span className="text-lg">{amount}</span></p>
             <p className="m-2"><span className="text-lg">Due Date: {new Date(dueDate).toLocaleDateString("en-GB")}</span></p>
-            
+            <p className="m-2"><span className="text-lg">Issue Date: {new Date(issueDate).toLocaleDateString("en-GB")}</span></p>
             </div>
           </div>
           <div className="flex flex-col">
@@ -151,12 +152,26 @@ export default function Task({
               onChange={(e) => setEditAmount(Number(e.target.value))}
               className="m-2 p-1 border rounded"
             />
-            <input
-              type="date"
-              value={editDueDate.split("T")[0]} // Assuming the date format needs adjustment
-              onChange={(e) => setEditDueDate(e.target.value)}
-              className="m-2 p-1 border rounded"
-            />
+            <div className="flex flex-row items-center">
+              <label htmlFor="editDueDate">Due Date:</label>
+              <input
+                type="date"
+                id="editDueDate"
+                value={editDueDate.split("T")[0]} // Assuming the date format needs adjustment
+                onChange={(e) => setEditDueDate(e.target.value)}
+                className="m-2 p-1 border rounded"
+              />
+            </div>
+            <div className="flex flex-row items-center">
+              <label htmlFor="editIssueDate">Issue Date:</label>
+              <input
+                type="date"
+                id="editIssueDate"
+                value={editIssueDate.split("T")[0]} // Assuming the date format needs adjustment
+                onChange={(e) => setEditIssueDate(e.target.value)}
+                className="m-2 p-1 border rounded"
+              />
+            </div>
             <select
               value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}

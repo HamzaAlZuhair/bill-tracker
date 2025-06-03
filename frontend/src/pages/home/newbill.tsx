@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useBills } from "../../context/bills-context";
 
-export default function NewBill() {
+export default function NewBill({ setAddingNewBill }: any) {
   const { fetchBills } = useBills();
   const [billName, setBillName] = useState<string>("");
   const [dueDate, setDueDate] = useState<string>("");
@@ -38,15 +38,22 @@ export default function NewBill() {
         setStatus("unpaid");
         fetchBills(); // Refresh the bill list after adding a new bill
       } else {
-        alert("Failed to add task.");
+        alert("Failed to add bill.");
       }
+      setAddingNewBill(false); // Close the modal after adding the bill
     } catch (error) {
-      console.error("Error adding task:", error);
-      alert("An error occurred while adding the task.");
+      console.error("Error adding bill:", error);
+      alert("An error occurred while adding the bill.");
     }
   }
 
   return (
+    <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-10"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setAddingNewBill(false);
+        }
+      }}>
     <div className="flex flex-col items-center p-5 rounded-xl m-5 bg-[#f1f5f9] shadow-2xl">
       <h1 className="text-2xl">Add a new bill</h1>
       <input
@@ -56,13 +63,17 @@ export default function NewBill() {
         value={billName}
         onChange={(e) => setBillName(e.target.value)}
       />
-      <input
-        type="number"
-        placeholder="Amount"
-        className="w-full my-2 p-2 rounded-xl border border-gray-300"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-      />
+      <div className="flex flex-row items-center justify-between">
+        <label htmlFor="amount">Amount:</label>
+        <input
+          type="number"
+          id="amount"
+          placeholder="Amount"
+          className="w-full my-2 p-2 rounded-xl border border-gray-300"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+      </div>
       <div className="flex flex-row items-center justify-between">
         <label htmlFor="dueDate">Due Date:</label>
         <input
@@ -87,8 +98,9 @@ export default function NewBill() {
         className="m-2"
         onClick={handleAddBill}
       >
-        Add task
+        Add Bill
       </button>
+    </div>
     </div>
   );
 }

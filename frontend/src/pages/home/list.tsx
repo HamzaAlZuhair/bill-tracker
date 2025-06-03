@@ -10,8 +10,9 @@ export default function List(){
   }, []);
 
   return (
-    <div className="overflow-hidden h-full w-[60%] rounded-xl shadow-2xl">
-      <div className="overflow-y-auto h-[100%] w-full rounded-xl flex flex-col items-center p-5 bg-[#f1f5f9]">
+    <div className="overflow-hidden md:h-[100vh] md:w-[80%] w-full bg-white">
+      <div className="overflow-y-auto w-full h-full flex flex-col items-center p-5">
+        {bills.length === 0 && <p>No bills found</p>}
         {bills && bills.map((bill, index) => {
           return (
             <Bill
