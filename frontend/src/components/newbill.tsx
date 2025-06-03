@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useBills } from "../../context/bills-context";
+import { useBills } from "../context/bills-context";
 
 export default function NewBill({ setAddingNewBill }: any) {
   const { fetchBills } = useBills();
