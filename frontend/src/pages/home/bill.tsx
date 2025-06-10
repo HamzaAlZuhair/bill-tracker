@@ -107,7 +107,7 @@ export default function Bill({
   }
 
   return (
-    <div className={`flex flex-col md:flex-row items-center justify-between ${status === 'unpaid' && dueDate < new Date().toISOString() ? 'bg-red-100' : 'bg-gray-200'} p-2 rounded-xl m-2 w-[95%] shadow-sm`}>
+    <div className={`flex flex-col md:flex-row items-center justify-between ${status === 'unpaid' && dueDate < new Date().toISOString() ? 'bg-red-100' : 'bg-gray-100/50'} p-2 rounded-xl m-2 w-[95%] shadow-sm`}>
       {deleting && <ConfirmDelete setDeleting={setDeleting} handleDelete={handleDelete} />}
       {!isEditing ? (
         <>
@@ -132,7 +132,7 @@ export default function Bill({
               </button>
               <button className="m-2 !text-sm !bg-red-400" onClick={() => setDeleting(true)}>Delete</button>
             </div>
-            {status === "unpaid" && <button className="m-2 !text-sm" onClick={handlePaid}>
+            {status === "unpaid" && <button className="m-2 !text-sm !bg-green-300" onClick={handlePaid}>
               Click here when paid
             </button>}
           </div>

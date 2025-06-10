@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import List from "./list";
 import { useNavigate } from "react-router";
 import { BillsProvider } from "../../context/bills-context";
@@ -6,6 +6,7 @@ import Navbar from "../../components/navbar";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [billsToShow, setBillsToShow] = useState("due this month");
   useEffect(() => {
     const verifyUser = async () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify`, {
@@ -32,8 +33,8 @@ export default function Home() {
   return (
     <BillsProvider>
       <div className='flex md:flex-row flex-col items-center justify-between h-screen bg-[#e6f4ea]'>
-        <Navbar />
-        <List />
+        <Navbar setBillsToShow={setBillsToShow} />
+        <List billsToShow={billsToShow} />
       </div>
     </BillsProvider>
   );
