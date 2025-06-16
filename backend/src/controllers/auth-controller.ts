@@ -2,9 +2,15 @@ import User from '../models/user-model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const generateToken = (id: string) => {
-  return jwt.sign({ id }, process.env.TOKEN_KEY as string, {
-    expiresIn: '5h',
+const generateAccessToken = (id: string) => {
+  return jwt.sign({ id }, process.env.ACCESS_TOKEN_KEY as string, {
+    expiresIn: '1m',
+  });
+}
+
+const generateRefreshToken = (id: string) => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_KEY as string, {
+    expiresIn: '30d',
   });
 }
 
@@ -24,13 +30,15 @@ const registerUser = async (req: any, res: any) => {
       password,
     });
     if (user){
-      const token = generateToken(user._id.toString());
-      res.cookie('token', token, {
+      const accessToken = generateAccessToken(user._id.toString());
+      const refreshToken = generateRefreshToken(user._id.toString());
+      res.header('Access-Control-Expose-Headers', 'Authorization');
+      res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,
         
-      });
+      }).header('Authorization', accessToken);
       res.status(201).json({
         _id: user._id,
         email: user.email,
@@ -53,13 +61,15 @@ const loginUser = async (req: any, res: any) => {
   try {
     const user = await User.findOne({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const token = generateToken(user._id.toString());
-      res.cookie('token', token, {
+      const accessToken = generateAccessToken(user._id.toString());
+      const refreshToken = generateRefreshToken(user._id.toString());
+      res.header('Access-Control-Expose-Headers', 'Authorization');
+      res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,
-        
-      }); 
+
+      }).header('Authorization', accessToken);
       res.status(200).json({
         _id: user._id,
         email: user.email,
@@ -74,21 +84,39 @@ const loginUser = async (req: any, res: any) => {
 }
 
 const verifyUser = (req: any, res: any) => {
-  const token = req.cookies.token;
-  if (!token) {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
   try {
-    const decoded = jwt.verify(token, process.env.TOKEN_KEY as string);
-    res.status(200).json({ message: "Authenticated", user: decoded });
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY as string);
+    const newAccessToken = generateAccessToken((decoded as any).id);
+    res.header('Access-Control-Expose-Headers', 'Authorization');
+    res.header('Authorization', newAccessToken).status(200).json({ message: "Access token refreshed" });
   } catch (err) {
     res.status(401).json({ message: "Error verifying" });
   }
 }
 
 const logoutUser = (req: any, res: any) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: false });
+  res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: false });
   res.status(200).send({ message: "Logged out successfully" });
 }
-export { registerUser, loginUser, verifyUser, logoutUser };
+
+const refreshAccessToken = (req: any, res: any) => {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY as string);
+    const newAccessToken = generateAccessToken((decoded as any).id);
+    res.header('Access-Control-Expose-Headers', 'Authorization');
+    res.header('Authorization', newAccessToken).status(200).json({ message: "Access token refreshed" });
+  } catch (err) {
+    res.status(400).json({ message: "Error refreshing access token" });
+  }
+
+}
+
+export { registerUser, loginUser, verifyUser, logoutUser, refreshAccessToken };

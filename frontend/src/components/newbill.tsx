@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useBills } from "../context/bills-context";
+import { useAuth } from "../context/auth-context";
 
 export default function NewBill({ setAddingNewBill }: any) {
   const { fetchBills } = useBills();
+  const { getAccessToken, refreshAccessToken } = useAuth();
   const [billName, setBillName] = useState<string>("");
   const [dueDate, setDueDate] = useState<string>("");
   const [issueDate, setIssueDate] = useState<string>("");
@@ -26,7 +28,9 @@ export default function NewBill({ setAddingNewBill }: any) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bills/savebill`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          "Authorization": `Bearer ${getAccessToken()}`
+         },
         body: JSON.stringify(payload),
       });
       console.log(response);
@@ -37,6 +41,15 @@ export default function NewBill({ setAddingNewBill }: any) {
         setIssueDate("");
         setStatus("unpaid");
         fetchBills(); // Refresh the bill list after adding a new bill
+      } else if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+           // Retry with the new token
+          return;
+        } else {
+          alert("Session expired, please log in again.");
+        }
+
       } else {
         alert("Failed to add bill.");
       }

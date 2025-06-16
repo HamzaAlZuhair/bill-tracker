@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../../context/auth-context';
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [signup, setSignup] = useState(false);
   const navigate = useNavigate();
+  const { setAccessToken } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ export default function Login() {
       });
       console.log(response);
       if (response.ok) {
+        setAccessToken(response.headers.get('Authorization'));
         navigate('/');
       } else {
         alert('Login failed. Please check your credentials.');
@@ -41,13 +44,15 @@ export default function Login() {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       console.log(response);
       if (response.ok) {
         alert('Signup successful! ');
-        setSignup(false); // Switch to login mode after successful signup
+        setAccessToken(response.headers.get('Authorization'));
+        navigate('/');
       } else {
         alert('Signup failed. Email already exists or invalid data.');
       }

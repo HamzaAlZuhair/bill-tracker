@@ -1,22 +1,19 @@
 import User from "../models/user-model";
 import jwt from "jsonwebtoken";
 
-const userVerification = (req: any, res: any, next: any) => {
-  if (!req.cookies.token) {
+const userVerification = async (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  jwt.verify(req.cookies.token, process.env.TOKEN_KEY as string, async (err: any, data: any) => {
-    if (err) {
-      return res.status(401).json({ message: "Unauthorized" });
-    } else {
-      const user = await User.findById(data.id);
-      if (user) {
-        req.user = user;
-        next();
-      }
-      else res.json({ status: false });
-    }
-  });
-}
+  const accessToken = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY as string);
+    req.user = await User.findById((decoded as any).id);
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Access token expired or invalid" });
+  }
+};
 
 export default userVerification;

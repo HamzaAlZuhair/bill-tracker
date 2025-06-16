@@ -21,7 +21,7 @@ export default function List({ billsToShow }: { billsToShow: string }) {
       return bills.filter((bill) => {
         const dueDate = new Date(bill.bill_due_date);
         const today = new Date(now);
-        today.setHours(0, 0, 0, 0); // set to midnight
+        // today.setHours(0, 0, 0, 0); // set to midnight
         return (
           bill.bill_status === "unpaid" &&
           dueDate.getTime() < today.getTime() // compare only date part
@@ -45,7 +45,7 @@ export default function List({ billsToShow }: { billsToShow: string }) {
   const filteredBills = filterBills();
 
   return (
-    <div className="overflow-hidden md:h-[100vh] md:w-[80%] w-full bg-white shadow-lg">
+    <div className="overflow-hidden md:h-[100vh] h-full md:w-[80%] w-full bg-white shadow-lg">
       <div className="overflow-y-auto h-full flex flex-col items-center p-5">
         <p className="text-lg w-[95%] m-5">{billsToShow === 'due this month' ? 'Due this month' 
         : billsToShow === "overdue" ? 'Overdue Bills' 

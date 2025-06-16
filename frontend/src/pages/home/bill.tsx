@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useBills } from "../../context/bills-context";
+import { useAuth } from "../../context/auth-context";
 
 export default function Bill({
   id,
@@ -24,6 +25,7 @@ export default function Bill({
   const [editStatus, setEditStatus] = useState(status);
   const [editIssueDate, setEditIssueDate] = useState(issueDate);
   const [deleting, setDeleting] = useState(false);
+  const { getAccessToken, refreshAccessToken } = useAuth();
 
   const handleSave = async () => {
     try {
@@ -32,7 +34,9 @@ export default function Bill({
         {
           method: "PUT",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${getAccessToken()}`
+           },
           body: JSON.stringify({
             bill_name: editName,
             bill_amount: editAmount,
@@ -46,6 +50,14 @@ export default function Bill({
       if (response.ok) {
         setIsEditing(false);
         fetchBills(); // Refresh the bill list
+      } else if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          handleSave(); // Retry with the new token
+          return;
+        } else {
+          alert("Session expired, please log in again.");
+        }
       } else {
         alert("Failed to update bill.");
       }
@@ -62,12 +74,22 @@ export default function Bill({
         {
           method: "DELETE",
           credentials: "include",
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${getAccessToken()}`
+           }
         }
       );
 
       if (response.ok) {
         fetchBills(); // Refresh the bill list
+      } else if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          handleDelete(); // Retry with the new token
+          return;
+        } else {
+          alert("Session expired, please log in again.");
+        }
       } else {
         alert("Failed to delete bill.");
       }
@@ -84,7 +106,9 @@ export default function Bill({
         {
           method: "PUT",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${getAccessToken()}`
+           },
           body: JSON.stringify({
             bill_name: name,
             bill_amount: amount,
@@ -97,6 +121,14 @@ export default function Bill({
 
       if (response.ok) {
         fetchBills(); // Refresh the bill list
+      } else if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          handlePaid(); // Retry with the new token
+          return;
+        } else {
+          alert("Session expired, please log in again.");
+        }
       } else {
         alert("Failed to update bill.");
       }
