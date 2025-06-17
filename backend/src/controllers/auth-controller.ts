@@ -35,9 +35,9 @@ const registerUser = async (req: any, res: any) => {
       res.header('Access-Control-Expose-Headers', 'Authorization');
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        
+        sameSite: 'None',
+        secure: true,
+
       }).header('Authorization', accessToken);
       res.status(201).json({
         _id: user._id,
@@ -66,8 +66,8 @@ const loginUser = async (req: any, res: any) => {
       res.header('Access-Control-Expose-Headers', 'Authorization');
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
+        sameSite: 'None',
+        secure: true,
 
       }).header('Authorization', accessToken);
       res.status(200).json({
