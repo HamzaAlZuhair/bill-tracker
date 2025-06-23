@@ -23,7 +23,7 @@ export default function NewBill({ setAddingNewBill }: any) {
         },
       ],
     };
-
+    setAddingNewBill(false);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bills/savebill`, {
         method: "POST",
@@ -53,7 +53,7 @@ export default function NewBill({ setAddingNewBill }: any) {
       } else {
         alert("Failed to add bill.");
       }
-      setAddingNewBill(false); // Close the modal after adding the bill
+      
     } catch (error) {
       console.error("Error adding bill:", error);
       alert("An error occurred while adding the bill.");
